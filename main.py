@@ -43,8 +43,6 @@ def reset_game():
 
 reset_game()
 
-fruit_position = [random.randrange(1, (window_x//10)) * 10,
-                  random.randrange(1, (window_y//10)) * 10]
 
 
 screen = pygame.display.set_mode((window_x, window_y))
