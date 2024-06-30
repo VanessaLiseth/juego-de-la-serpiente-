@@ -5,6 +5,8 @@ from constants import *
 from button import Text_button
 import random
 
+from file_handdler import add_score, reed_score
+
 pygame.init()
 font = pygame.font.Font('fonts\Wainscoted.ttf', 34)
 small_font = pygame.font.Font('fonts\Patrick Tonight.otf', 30)
@@ -14,6 +16,7 @@ window_y = 600
 
 fps = pygame.time.Clock()
 
+player_name = ''
 snake_position = []
 snake_body = []
 snake_speed = 0
@@ -24,26 +27,7 @@ is_defeate = False
 score = 0
 is_pause = False
 
-
-def reset_game():
-
-    global snake_position, snake_body, snake_speed, fruit_spawn, direction, movement, is_defeate, score
-    snake_position = [100, 50]
-    snake_body = [[100, 50],
-                  [90, 50],
-                  [80, 50],
-                  [70, 50]]
-    snake_speed = 15
-    fruit_spawn = True
-    direction = 'RIGHT'
-    movement = direction
-    is_defeate = False
-    score = 0
-
-
-reset_game()
-
-
+current_screen = MAIN_SCREEN
 
 screen = pygame.display.set_mode((window_x, window_y))
 pygame.display.set_caption('SNAKE GAME')
@@ -64,11 +48,26 @@ return_button = Text_button(x=10, y=500, width=200,
                             heigth=60, text="Regresar", font=font, text_color=WHITE,
                             bg_color=BLACK_PURPLE, border_width=3)
 
-current_screen = MAIN_SCREEN
 
 
 fruit_position = [random.randrange(1, (window_x//10)) * 10,
                   random.randrange(1, (window_y//10)) * 10]
+
+
+def reset_game():
+
+    global snake_position, snake_body, snake_speed, fruit_spawn, direction, movement, is_defeate, score
+    snake_position = [100, 200]
+    snake_body = [[100, 200],
+                  [90, 200],
+                  [80, 200],
+                  [70, 200]]
+    snake_speed = 15
+    fruit_spawn = True
+    direction = 'RIGHT'
+    movement = direction
+    is_defeate = False
+    score = 0
 
 
 def check_defeate(snake_position, snake_body):
@@ -102,20 +101,27 @@ def pause_screen():
 
 
 def dead_screen():
+    screen.fill(LILAC)
     game_over_surface = font.render(
         'Tu puntuación es: ' + str(score), True, WHITE)
     game_over_rect = game_over_surface.get_rect()
 
-    game_over_rect.midtop = (window_x/2, window_y/2)
+    game_over_rect.midtop = (window_x/2, window_y/3)
 
-    screen.blit(game_over_surface, game_over_rect)
-    pygame.display.flip()
-    time.sleep(1)
+    screen.blit(game_over_surface, game_over_rect)    
     game_over_surface = font.render(
-        'Presiona una tecla para continuar', True, WHITE)
+        'Escribe tu nombre', True, WHITE)
     game_over_rect = game_over_surface.get_rect()
 
-    game_over_rect.midtop = (window_x/2, window_y/2 + 40)
+    game_over_rect.midtop = (window_x/2, window_y/3 + 40)
+
+    screen.blit(game_over_surface, game_over_rect)
+
+    game_over_surface = font.render(
+        player_name, True, WHITE)
+    game_over_rect = game_over_surface.get_rect()
+
+    game_over_rect.midtop = (window_x/2, window_y/3 + 80)
 
     screen.blit(game_over_surface, game_over_rect)
     pygame.display.flip()
@@ -133,7 +139,7 @@ def main_screen():
     screen.blit(text_surface, text_rect)
 
 
-def game_screen(snake_body, fruit_position, screen):
+def game_screen(snake_body, fruit_position):
     screen.fill(LILAC)
 
     score_text = font.render(f'Puntuación: {score}', True, WHITE)
@@ -152,8 +158,20 @@ def game_screen(snake_body, fruit_position, screen):
 def game_history_screen():
     screen.fill(LILAC)
 
+    best_scores = reed_score()
+
+    
+    for i, score in enumerate(best_scores):
+        name, score = score.split(' ')
+        text_surface = font.render(f'{i+1}.  {name}  {score}', True, BLACK_PURPLE)
+        text_rect = text_surface.get_rect(topleft=(320, i*60 + 100))
+        screen.blit(text_surface, text_rect)
+    
+
     return_button.draw_button(screen)
 
+
+reset_game()
 
 running = True
 while running:
@@ -176,28 +194,35 @@ while running:
             if current_screen == GAME_HISTORY_SCREEN:
                 if return_button.rect.collidepoint(mouse_pos):
                     current_screen = MAIN_SCREEN
-            if current_screen == GAME_SCREEN:
-                if return_button.rect.collidepoint(mouse_pos):
-                    current_screen = MAIN_SCREEN
         elif event.type == pygame.KEYDOWN and current_screen == GAME_SCREEN:
             if is_defeate:
-                current_screen = MAIN_SCREEN
-                reset_game()
-            if is_pause:
+                if event.key == pygame.K_BACKSPACE:
+                    player_name = player_name[:-1]
+                elif event.key == pygame.K_RETURN:
+                    current_screen = MAIN_SCREEN
+                    add_score(player_name,score)                    
+                    reset_game()
+                    player_name = ''
+                elif event.key != pygame.K_SPACE:
+                    if(len(player_name) < 3):
+                        player_name += event.unicode
+                        player_name = player_name.upper()                
+                
+            elif is_pause:
                 if event.key == pygame.K_ESCAPE:
                     current_screen = MAIN_SCREEN
                     reset_game()
                 is_pause = False
 
-            if event.key == pygame.K_UP:
+            elif event.key == pygame.K_UP:
                 movement = 'UP'
-            if event.key == pygame.K_DOWN:
+            elif event.key == pygame.K_DOWN:
                 movement = 'DOWN'
-            if event.key == pygame.K_LEFT:
+            elif event.key == pygame.K_LEFT:
                 movement = 'LEFT'
-            if event.key == pygame.K_RIGHT:
+            elif event.key == pygame.K_RIGHT:
                 movement = 'RIGHT'
-            if event.key == pygame.K_SPACE:
+            elif event.key == pygame.K_SPACE:
                 is_pause = True
 
     if current_screen == MAIN_SCREEN:
@@ -241,7 +266,7 @@ while running:
                                   random.randrange(1, (window_y//10)) * 10]
             fruit_spawn = True
 
-            game_screen(snake_body, fruit_position, screen)
+            game_screen(snake_body, fruit_position)
         elif is_defeate:
             dead_screen()
         elif is_pause:
@@ -250,6 +275,6 @@ while running:
     elif current_screen == GAME_HISTORY_SCREEN:
         game_history_screen()
 
-    pygame.display.flip()
+    pygame.display.flip() #Actualiza la pantalla
 
-    fps.tick(snake_speed)
+    fps.tick(snake_speed) #Define la velocidad de refresco de la pantalla con la celocidad de la serpiente
