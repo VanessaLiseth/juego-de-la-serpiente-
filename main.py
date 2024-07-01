@@ -81,6 +81,7 @@ def check_defeate(snake_position, snake_body):
     return False
 
 
+
 def pause_screen():
     game_over_surface = font.render(
         'El juego se pauso', True, WHITE)
@@ -126,7 +127,7 @@ def dead_screen():
     screen.blit(game_over_surface, game_over_rect)
     pygame.display.flip()
 
-
+  
 def main_screen():
     screen.fill(LILAC)
 
@@ -226,7 +227,6 @@ while running:
                 is_pause = True
 
     if current_screen == MAIN_SCREEN:
-
         main_screen()
 
     elif current_screen == GAME_SCREEN:
