@@ -14,7 +14,7 @@ El propósito principal del proyecto de desarrollo del juego de la serpiente en 
 Para ejecutar el programa una vez descargado el repositorio hay que seguir los siguientes pasos:
 1. Ubicarse en la carpeta de la descarga o la clonación del repositorio
 2. Ejecutar los siguientes comandos:
-  1. py -m venv venv
-  2. .\venv\Scripts\activate
-  3. pip install -r .\librerias.txt
-  4. py .\main.py
+    1. py -m venv venv
+    2. .\venv\Scripts\activate
+    3. pip install -r .\librerias.txt
+    4. py .\main.py
